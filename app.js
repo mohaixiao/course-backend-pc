@@ -2,16 +2,32 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const { expressjwt: jwt } = require('express-jwt')
+const { jwtSecretKey } = require('./config/jwtSecretKey')
+const DB = require('./config/sequelize')
+
 
 app.use(cors())
+
 // 解析json数据格式
 app.use(bodyParser.json())
+
 // 解析urlencoded数据格式
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.get('/test', (req, res) => {
-  res.send('小滴课堂')
+// 用户认证中间件
+app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
+  path: [
+    /^\/api\/user\/v1\/register/,
+    '/test'
+  ]
+}))
+
+app.get('/test', async (req, res) => {
+  const resData = await DB.Account.findAll()
+  res.send(resData)
 })
+
 
 // 错误中间件
 app.use((err, req, res, next) => {

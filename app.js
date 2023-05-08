@@ -7,7 +7,8 @@ const { jwtSecretKey } = require('./config/jwtSecretKey')
 const DB = require('./config/sequelize')
 // 通知相关的接口
 const notifyRouter = require('./router/notify.js')
-
+// 用户相关接口
+const userRouter = require('./router/user.js');
 app.use(cors())
 
 // 解析json数据格式
@@ -21,11 +22,14 @@ app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
   path: [
     // /^\/api\/user\/v1\/register/,
     /^\/api\/notify\/v1/,  // 验证码通知接口排除
+    /^\/api\/user\/v1\/register/,  // 用户注册接口排除
     '/',
   ]
 }))
 
 app.use('/api/notify/v1', notifyRouter)
+
+app.use('/api/user/v1', userRouter)
 
 app.get('/', (req, res) => {
   res.send('111')

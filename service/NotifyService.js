@@ -1,6 +1,7 @@
 const svgCaptcha = require('svg-captcha');
 const redisConfig = require('../config/redisConfig');
 const sendMsgCode = require('../config/aliyunMessage');
+const dayjs = require('dayjs');
 
 const NotifyService = {
     captcha: async (key, type) => {
@@ -15,15 +16,20 @@ const NotifyService = {
         return captcha.data;
     },
     sendCode: async (phone, captcha, type, _key, randomCode) => {
+
         // 60秒内不能重复发送手机验证码
-        if (await redisConfig.exists(`${type}:over:${phone}`)) {
-            return { code: -1, msg: '60秒不能重复发送' }
+        if (await redisConfig.exists(`${type}:code:` + phone)) {
+            let dateRedis = dayjs(Number((await redisConfig.get(`${type}:code:` + phone)).split('_')[0]))
+            if (dayjs(Date.now()).diff(dateRedis, 'second') <= 60) {
+                return { code: -1, msg: '60秒内不能重复获取' }
+            }
         }
 
         // 是否有图形验证码
         if (!(await redisConfig.exists(`${type}:captcha:${_key}`))) {
             return { code: -1, msg: '请发送图形验证码' }
         }
+
         // 对比用户和redis的图形验证码 忽略大小写
         let captchaRedis = await redisConfig.get(`${type}:captcha:${_key}`)
         if (!(captcha.toLowerCase() === captchaRedis.toLowerCase())) {
@@ -31,9 +37,11 @@ const NotifyService = {
         }
 
         // 手机验证码存redis
-        redisConfig.set(`${type}:code:${phone}`, randomCode, 600);
-        // 存60秒判断的key值
-        redisConfig.set(`${type}:over:${phone}`, 1, 60);
+        let randomCodeTime = `${Date.now()}_${randomCode}`
+        redisConfig.set(`${type}:code:${phone}`, randomCodeTime, 600);
+
+        // 删除图形验证码
+        redisConfig.del(`${type}:captcha:${_key}`)
 
         // 调用阿里云发送手机验证码
         let resCode = (await sendMsgCode(phone, randomCode)).data;

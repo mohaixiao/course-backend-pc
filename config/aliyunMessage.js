@@ -14,8 +14,4 @@ const sendMsgCode = (phone, randomCode) => {
     })
 }
 
-(async () => {
-    console.log(await sendMsgCode(19160753146, '1234').data);
-})()
-
 module.exports = sendMsgCode;

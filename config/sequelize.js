@@ -2,8 +2,9 @@ const { Sequelize } = require('sequelize')
 const initModels = require('../models/init-models')
 
 const sequelize = new Sequelize('xdclass-edu', 'root', 'xdclass.net168', {
-    host: '120.25.3.72',
-    dialect: 'mysql'
+    host: '8.137.9.133',
+    dialect: 'mysql',
+    timezone: '+08:00'
 });
 
 (async function () {

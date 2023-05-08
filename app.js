@@ -5,7 +5,8 @@ const cors = require('cors')
 const { expressjwt: jwt } = require('express-jwt')
 const { jwtSecretKey } = require('./config/jwtSecretKey')
 const DB = require('./config/sequelize')
-
+// 通知相关的接口
+const notifyRouter = require('./router/notify.js')
 
 app.use(cors())
 
@@ -18,16 +19,17 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // 用户认证中间件
 app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
   path: [
-    /^\/api\/user\/v1\/register/,
-    '/test'
+    // /^\/api\/user\/v1\/register/,
+    /^\/api\/notify\/v1/,  // 验证码通知接口排除
+    '/',
   ]
 }))
 
-app.get('/test', async (req, res) => {
-  const resData = await DB.Account.findAll()
-  res.send(resData)
-})
+app.use('/api/notify/v1', notifyRouter)
 
+app.get('/', (req, res) => {
+  res.send('111')
+})
 
 // 错误中间件
 app.use((err, req, res, next) => {

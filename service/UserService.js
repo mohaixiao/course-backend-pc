@@ -2,22 +2,24 @@ const DB = require('../config/sequelize')
 const redisConfig = require('../config/redisConfig');
 const RandomTool = require('../utils/RandomTool');
 const SecretTool = require('../utils/SecretTool');
+const BackCode = require('../utils/BackCode')
+const CodeEnum = require('../utils/CodeEnum')
 
 const UserService = {
     register: async (phone, code) => {
         // 手机号注册查重的逻辑 
         let existPhone = await DB.Account.findAll({ where: { phone } });
         if (existPhone.length > 0) {
-            return { code: -1, msg: '手机号已经注册' }
+            return BackCode.buildResult(CodeEnum.ACCOUNT_REPEAT)
         }
 
         //  获取redis缓存的code,判断用户code是否正确 
         if (await redisConfig.exists('register:code:' + phone)) {
             const codeRes = redisConfig.get('register:code:' + phone);
             if (codeRes !== code) {
-                return { code: -1, msg: '短信验证码不正确' }
+                return BackCode.buildError({ msg: '短信验证码不正确' })
             } else {
-                return { code: -1, msg: '请先获取短信验证码' }
+                return BackCode.buildError({ msg: '请先获取短信验证码' })
             }
         }
 

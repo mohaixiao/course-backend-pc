@@ -15,6 +15,10 @@ class SecretTool {
     static jwtVerify(query) {
         return jwt.verify(query, jwtSecretKey)
     }
+    // sha1加密
+    static sha1(query) {
+        return sha1(query)
+    }
 }
 
 module.exports = SecretTool;

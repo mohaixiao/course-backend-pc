@@ -9,6 +9,9 @@ const DB = require('./config/sequelize')
 const notifyRouter = require('./router/notify.js')
 // 用户相关接口
 const userRouter = require('./router/user.js');
+// 微信相关接口
+const wxLoginRouter = require('./router/wxLogin.js');
+
 app.use(cors())
 
 // 解析json数据格式
@@ -27,13 +30,14 @@ app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
   ]
 }))
 
+// 通知相关的接口
 app.use('/api/notify/v1', notifyRouter)
 
+// 用户相关的接口
 app.use('/api/user/v1', userRouter)
 
-app.get('/', (req, res) => {
-  res.send('111')
-})
+// 微信登录相关接口
+app.get('/api/wx_login/v1', wxLoginRouter)
 
 // 错误中间件
 app.use((err, req, res, next) => {

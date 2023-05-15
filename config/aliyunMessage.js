@@ -6,7 +6,7 @@ const sendMsgCode = (phone, randomCode) => {
         url: 'https://api-v2.xdclass.net/send_sms',
         data: {
             appid: "Ek7blIsBmbSfMjjUjK",
-            appSecret: "nPibND8mtAksFyQzmEbZkcG7yIp8oSt8",
+            appSecret: "Vwqd07rdbhCSpc6DfGZjyy1zCkfhJnYE",
             code: randomCode,
             phoneNum: phone,
             templateCode: "SMS_168781429"

@@ -1,5 +1,8 @@
 /**
  * @param wechat_insert 验证微信接入
+ * @param login 获取二维码接口
+ * @param wechat_message 用户扫码事件
+ * @param check_scan 轮询是否扫码
  */
 const WxLoginService = require('../service/WxLoginService')
 

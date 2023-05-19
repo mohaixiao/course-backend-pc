@@ -1,8 +1,8 @@
 const axios = require("axios");
 
-const appId = 'wx5beac15ca207c40c'
-const appSecret = '8189e5f14346ccaa3bd5f6909f31a362'
-const accessTokenPC = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`
+const appId = 'Ek7blIsBmbSfMjjUjK'
+const appSecret = 'Vwqd07rdbhCSpc6DfGZjyy1zCkfhJnYE'
+const accessTokenPC = `https://api-v2.xdclass.net/cgi-bin/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`
 const qrUrl = 'https://mp.weixin.qq.com/cgi-bin/showqrcode'
 
 // 获取微信access_token
@@ -13,14 +13,13 @@ const getAccessToken = () => {
     })
 }
 
-
 // 获取拼接微信二维码url的ticket
-const getTicket = () => {
+const getTicket = (token) => {
     return axios({
-        method: "post",
-        url: `https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=${token}`,
+        method: 'post',
+        url: `https://api-v2.xdclass.net/cgi-bin/qrcode/create?access_token=${token}`,
         data: {
-            expire_seconds: 60 * 2, // 倒计时
+            expire_seconds: 60 * 2,
             action_name: "QR_SCENE",
             action_info: {
                 "scene": { "scene_id": 123 }

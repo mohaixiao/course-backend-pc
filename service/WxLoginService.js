@@ -24,7 +24,8 @@ const WxLoginService = {
 
     },
     wechat_message: async (req) => {
-        let xmlData = await WxDataTool.getXMLStr(req)
+        // let xmlData = await WxDataTool.getXMLStr(req)
+        let xmlData = Object.keys(req.body)[0]
         let objectData = await WxDataTool.getObject(xmlData)
         let lastData = WxDataTool.getLastData(objectData.xml)
 

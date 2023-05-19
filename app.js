@@ -26,7 +26,8 @@ app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
     // /^\/api\/user\/v1\/register/,
     /^\/api\/notify\/v1/,  // 验证码通知接口排除
     /^\/api\/user\/v1\/register/,  // 用户注册接口排除
-    '/',
+    /^\/api\/wx_login\/v1/, // 微信相关接口
+    /^\//
   ]
 }))
 
@@ -38,6 +39,10 @@ app.use('/api/user/v1', userRouter)
 
 // 微信登录相关接口
 app.get('/api/wx_login/v1', wxLoginRouter)
+
+app.get('/', (res, req) => {
+  req.send('hello')
+})
 
 // 错误中间件
 app.use((err, req, res, next) => {

@@ -1,6 +1,6 @@
 const SecretTool = require('../utils/SecretTool')
 const { getOR } = require('../config/wechatLogin')
-const redisConfg = require('../config/redisConfig')
+const redisConfig = require('../config/redisConfig')
 const BackCode = require('../utils/BackCode')
 const WxDataTool = require('../utils/WxDataTool')
 const DB = require('../config/sequelize')
@@ -16,12 +16,12 @@ const WxLoginService = {
         }
     },
     login: async () => {
-        const { qrcodeUrl, ticket } = await getOR();
+        // 获取二维码url
+        let { qrcodeUrl, ticket } = await getOR()
         // 将ticket存入redis缓存
         let key = `wechat:ticket:${ticket}`
-        redisConfg.set(key, JSON.stringify({ isScan: 'no' }), 120);
+        redisConfig.set(key, JSON.stringify({ isScan: 'no' }), 120)
         return BackCode.buildSuccessAndData({ data: { qrcodeUrl, ticket } })
-
     },
     wechat_message: async (req) => {
         // let xmlData = await WxDataTool.getXMLStr(req)

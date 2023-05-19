@@ -25,4 +25,9 @@ const redisConfig = {
     }
 }
 
+
+redisConfig.set(1, 1)
+console.log(1);
+
+
 module.exports = redisConfig;

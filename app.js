@@ -50,6 +50,10 @@ app.use((err, req, res, next) => {
   res.send({ code: -1, data: null, msg: err.message })
 })
 
+app.get('/', (req, res) => {
+  res.send("test!")
+})
+
 
 app.listen(8081, () => {
   console.log('服务启动在：http://127.0.0.1:8081')

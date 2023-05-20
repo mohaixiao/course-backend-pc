@@ -11,6 +11,8 @@ const notifyRouter = require('./router/notify.js')
 const userRouter = require('./router/user.js');
 // 微信相关接口
 const wxLoginRouter = require('./router/wxLogin');
+// banner接口
+const bannerRouter = require('./router/banner.js')
 
 app.use(cors())
 
@@ -39,6 +41,14 @@ app.use('/api/user/v1', userRouter)
 
 // 微信登录相关接口
 app.use('/api/wx_login/v1', wxLoginRouter)
+
+// banner接口
+app.use('/api/banner/v1', bannerRouter)
+
+// 视频课程接口
+const productRouter = require('./router/product.js')
+app.use('/api/product/v1', productRouter)
+
 
 // 错误中间件
 app.use((err, req, res, next) => {

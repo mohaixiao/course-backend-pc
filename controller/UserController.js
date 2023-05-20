@@ -19,7 +19,12 @@ const UserController = {
     login: async (req, res) => {
         let handleRes = await UserService.login(req)
         res.send(handleRes)
-    }
+    },
+    detail: async (req, res) => {
+        let handleRes = await UserService.detail(req)
+        res.send(handleRes)
+    },
+    
 }
 
 

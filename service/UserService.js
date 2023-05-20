@@ -40,9 +40,10 @@ const UserService = {
         let { phone, password, code } = req.body;
         // 判断code在redis中是否存在
         let codeExist = redisConfig.exists(`change:code:${phone}`);
+        console.log(phone, password, code, codeExist);
         if (!codeExist) return BackCode.buildError({ msg: '请先获取手机验证码' });
         // 判断redis中code和用户code是否相等
-        let codeRes = (await redisConfig.get('change:code:' + phone)).split('_')[1];
+        let codeRes = (await redisConfig.get('change:code:' + phone))?.split('_')[1];
         if (!(code === codeRes)) return BackCode.buildError({ msg: '手机验证码不正确' })
 
         pwd = SecretTool.md5(password)
@@ -52,12 +53,12 @@ const UserService = {
     login: async (req) => {
         let { phone, code, password } = req.body;
         // 参数判空
-        if (phone && (password || code)) return BackCode.buildError({ msg: '缺少必要参数' });
+        if (!(phone && (password || code))) return BackCode.buildError({ msg: '缺少必要参数' });
         // 判断手机号是否注册
         let userInfo = await DB.Account.findAll({ where: { phone }, raw: true });
         if (userInfo.length === 0) return BackCode.buildResult(CodeEnum.ACCOUNT_UNREGISTER)
-
         // 账号密码方式
+        console.log(SecretTool.md5(123456));
         if (password) {
             // 判断密码是否正确
             if (!(userInfo[0].pwd == SecretTool.md5(password))) {
@@ -70,12 +71,12 @@ const UserService = {
             // redis中code和用户传如的code对比
             let codeRes = (await redisConfig.get('login:code:' + phone)).split('_')[1]
             if (!(codeRes == code)) return BackCode.buildError({ msg: '手机验证码不正确' })
-            // 拼接token的用户信息，除去密码
-            let user = { ...userInfo[0], pwd: '' }
-            //生成token
-            let token = SecretTool.jwtSign(user, '168h')
-            return BackCode.buildSuccessAndData({ data: `Bearer ${token}` })
         }
+        // 拼接token的用户信息，除去密码
+        let user = { ...userInfo[0], pwd: '' }
+        //生成token
+        let token = SecretTool.jwtSign(user, '168h')
+        return BackCode.buildSuccessAndData({ data: `Bearer ${token}` })
     }
 }
 

@@ -17,7 +17,7 @@ const UserController = {
         res.send(handleRes)
     },
     login: async (req, res) => {
-        let handleRes = await UserService.forget(req)
+        let handleRes = await UserService.login(req)
         res.send(handleRes)
     }
 }

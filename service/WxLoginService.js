@@ -47,9 +47,9 @@ const WxLoginService = {
         let token = SecretTool.jwtSign(user, '168h')
         // 更新redis状态 
         let key = `wechat:ticket:${lastData.Ticket}`
-        const existsKey = redisConfg.exists(key);
+        const existsKey = redisConfig.exists(key);
         if (existsKey) {
-            redisConfg.set(key, JSON.stringify({ isScan: 'yes', token }), 120)
+            redisConfig.set(key, JSON.stringify({ isScan: 'yes', token }), 120)
         }
         // 返回微信服务器的内容
         let content = ''

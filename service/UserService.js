@@ -35,6 +35,19 @@ const UserService = {
         await DB.Account.create({ username: name, head_img: avatar, phone })
 
         return { code: 0, data: `Bearer ${token}` }
+    },
+    forget: async (req) => {
+        let { phone, password, code } = req.body;
+        // 判断code在redis中是否存在
+        let codeExist = redisConfig.exists(`change:code:${phone}`);
+        if (!codeExist) return BackCode.buildError({ msg: '请先获取手机验证码' });
+        // 判断redis中code和用户code是否相等
+        let codeRes = (await redisConfig.get('change:code:' + phone)).split('_')[1];
+        if (!(code === codeRes)) return BackCode.buildError({ msg: '手机验证码不正确' })
+        
+        pwd = SecretTool.md5(password)
+        await DB.Account.update({ pwd }, { where: { phone } })
+        return BackCode.buildSuccessAndMsg({ msg: '修改成功' })
     }
 }
 

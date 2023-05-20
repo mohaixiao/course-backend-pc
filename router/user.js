@@ -10,6 +10,7 @@ router.post('/register', UserController.register);
 // 忘记密码
 router.post('/forget', UserController.forget);
 
-
+// 账号密码登录接口
+router.post('/login', UserController.login)
 
 module.exports = router;

@@ -40,7 +40,6 @@ const UserService = {
         let { phone, password, code } = req.body;
         // 判断code在redis中是否存在
         let codeExist = redisConfig.exists(`change:code:${phone}`);
-        console.log(phone, password, code, codeExist);
         if (!codeExist) return BackCode.buildError({ msg: '请先获取手机验证码' });
         // 判断redis中code和用户code是否相等
         let codeRes = (await redisConfig.get('change:code:' + phone))?.split('_')[1];
@@ -58,7 +57,6 @@ const UserService = {
         let userInfo = await DB.Account.findAll({ where: { phone }, raw: true });
         if (userInfo.length === 0) return BackCode.buildResult(CodeEnum.ACCOUNT_UNREGISTER)
         // 账号密码方式
-        console.log(SecretTool.md5(123456));
         if (password) {
             // 判断密码是否正确
             if (!(userInfo[0].pwd == SecretTool.md5(password))) {

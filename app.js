@@ -20,12 +20,13 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
   path: [
     /^\/api\/notify\/v1/,  // 验证码通知接口排除
-    /^\/api\/user\/v1\/register/,  // 验证码通知接口排除
-    /^\/api\/user\/v1\/login/,  // 验证码通知接口排除
+    /^\/api\/user\/v1\/register/,  // 注册接口排除
+    /^\/api\/user\/v1\/login/,  // 登录接口排除
     /^\/api\/user\/v1\/forget/,  // 设置密码接口排除
-    /^\/api\/wx_login\/v1/,  // 验证码通知接口排除
-    /^\/api\/banner\/v1/,  // 验证码通知接口排除
-    /^\/api\/product\/v1/,  // 验证码通知接口排除
+    /^\/api\/wx_login\/v1/,  // 微信登录接口排除
+    /^\/api\/banner\/v1/,  // 轮播图接口排除
+    /^\/api\/product\/v1/,  // 课程视频接口排除
+    /^\/api\/teacher\/v1/,  // 讲师接口排除
   ]
 }))
 
@@ -48,6 +49,10 @@ app.use('/api/banner/v1', bannerRouter)
 // 视频课程接口
 const productRouter = require('./router/product.js')
 app.use('/api/product/v1', productRouter)
+
+// 讲师相关的接口
+const teacherRouter = require('./router/teacher');
+app.use('/api/teacher/v1', teacherRouter);
 
 
 // 错误中间件

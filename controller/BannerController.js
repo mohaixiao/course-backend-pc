@@ -1,5 +1,5 @@
 /**
- * @params list banner接口
+ * @param list banner接口
  */
 
 const BannerService = require('../service/BannerService.js')

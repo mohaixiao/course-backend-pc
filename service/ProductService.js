@@ -24,6 +24,15 @@ const ProductService = {
             include: [{ model: DB.Category, as: 'subCategoryList' }]
         })
         return BackCode.buildSuccessAndData({ data: categoryList })
+    },
+    card: async () => {
+        let cardList = await DB.ProductCard.findAll({ raw: true })
+        let list = cardList.map(async (item) => {
+            item.product_list = await DB.Product.findAll({ where: { id: item.product_list.split(',') }, raw: true })
+            return item
+        })
+        let lastList = await Promise.all(list)
+        return BackCode.buildSuccessAndData({ data: lastList })
     }
 }
 module.exports = ProductService

@@ -5,14 +5,8 @@ const cors = require('cors')
 const { expressjwt: jwt } = require('express-jwt')
 const { jwtSecretKey } = require('./config/jwtSecretKey')
 const DB = require('./config/sequelize')
-// 通知相关的接口
-const notifyRouter = require('./router/notify.js')
-// 用户相关接口
-const userRouter = require('./router/user.js');
-// 微信相关接口
-const wxLoginRouter = require('./router/wxLogin');
-// banner接口
-const bannerRouter = require('./router/banner.js')
+const BackCode = require('./utils/BackCode')
+const CodeEnum = require('./utils/CodeEnum')
 
 app.use(cors())
 
@@ -25,24 +19,30 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // 用户认证中间件
 app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
   path: [
-    // /^\/api\/user\/v1\/register/,
     /^\/api\/notify\/v1/,  // 验证码通知接口排除
-    /^\/api\/user\/v1\/register/,  // 用户注册接口排除
-    /^\/api\/wx_login\/v1/, // 微信相关接口
-    /^\//
+    /^\/api\/user\/v1\/register/,  // 验证码通知接口排除
+    /^\/api\/user\/v1\/login/,  // 验证码通知接口排除
+    /^\/api\/user\/v1\/forget/,  // 设置密码接口排除
+    /^\/api\/wx_login\/v1/,  // 验证码通知接口排除
+    /^\/api\/banner\/v1/,  // 验证码通知接口排除
+    /^\/api\/product\/v1/,  // 验证码通知接口排除
   ]
 }))
 
 // 通知相关的接口
+const notifyRouter = require('./router/notify.js')
 app.use('/api/notify/v1', notifyRouter)
 
 // 用户相关的接口
+const userRouter = require('./router/user.js')
 app.use('/api/user/v1', userRouter)
 
-// 微信登录相关接口
+// 微信登录相关的接口
+const wxLoginRouter = require('./router/wxLogin.js')
 app.use('/api/wx_login/v1', wxLoginRouter)
 
 // banner接口
+const bannerRouter = require('./router/banner.js')
 app.use('/api/banner/v1', bannerRouter)
 
 // 视频课程接口
@@ -54,14 +54,10 @@ app.use('/api/product/v1', productRouter)
 app.use((err, req, res, next) => {
   // 未登录的错误
   if (err.name === 'UnauthorizedError') {
-    return res.send({ code: -1, data: null, msg: '请先登录！' })
+    return res.send(BackCode.buildResult(CodeEnum.ACCOUNT_UNLOGIN))
   }
   // 其他的错误
-  res.send({ code: -1, data: null, msg: err.message })
-})
-
-app.get('/', (req, res) => {
-  res.send("test!")
+  res.send(BackCode.buildError({ msg: err.message }))
 })
 
 

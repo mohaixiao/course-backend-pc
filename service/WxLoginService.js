@@ -41,7 +41,7 @@ const WxLoginService = {
             user = { head_img, username, id: resData.toJSON().id }
         } else {
             // 注册过
-            user = { head_img: openidRes.head_img, username: openidRes.username, id: openidRes.id }
+            user = { head_img: openidRes[0].head_img, username: openidRes[0].username, id: openidRes[0].id }
         }
         // 生成token
         let token = SecretTool.jwtSign(user, '168h')

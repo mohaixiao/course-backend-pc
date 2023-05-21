@@ -78,6 +78,7 @@ const UserService = {
     },
     detail: async (req) => {
         let token = req.headers.authorization.split(' ').pop()
+        console.log(token, "token");
         let userInfo = SecretTool.jwtVerify(token)
         let userDetail = await DB.Account.findOne({ where: { id: userInfo.id }, raw: true })
         return BackCode.buildSuccessAndData({ data: { ...userDetail, pwd: '' } })

@@ -23,4 +23,9 @@ const models = initModels(sequelize)
 models.Category.hasMany(models.Category, { foreignKey: 'pid', as: 'subCategoryList' })
 models.Category.belongsTo(models.Category, { foreignKey: 'pid' })
 
+
+// teacher和product表的一对多关系模型
+models.Teacher.hasMany(models.Product, { foreignKey: 'teacher_id' })
+models.Product.belongsTo(models.Teacher, { foreignKey: 'teacher_id', as: "teacherDetail" })
+
 module.exports = { ...models, sequelize }

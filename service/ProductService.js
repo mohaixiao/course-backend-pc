@@ -83,9 +83,7 @@ const ProductService = {
       where: { id },
       include: [{ model: DB.Teacher, as: 'teacherDetail' }],
     })
-    if (productDetail) {
-      return BackCode.buildSuccessAndData({ data: { ...productDetail.toJSON(), bd_zip_url: '', note_url: '' } })
-    }
+    return BackCode.buildSuccessAndData({ data: { ...productDetail.toJSON(), bd_zip_url: '', note_url: '' } })
   },
   material_by_id: async (req) => {
     let { id } = req.query

@@ -50,7 +50,7 @@ const ProductService = {
     let productListSql = `SELECT p.* FROM product p LEFT JOIN category_product c ON c.product_id=p.id ${sqlId ? 'WHERE c.category_id=?' : ''} group by p.id ORDER BY p.gmt_create DESC LIMIT ?,?`
 
     // 传递几个参数进sql判断
-    let productListQuery = sqlId ? [sqlId, page, size] : [page, size]
+    let productListQuery = sqlId ? [sqlId, Number(page), Number(size)] : [Number(page), Number(size)]
 
     // sequelize原始查询
     let productList = await DB.sequelize.query(productListSql, {

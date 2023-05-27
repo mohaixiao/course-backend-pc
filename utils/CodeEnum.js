@@ -94,7 +94,7 @@ const CodeEnum = {
         code: 270007,
         msg: '订单支付超时'
     },
-    PRODUCT_NOY_PAY: {
+    PRODUCT_NO_PAY: {
         code: 280001,
         msg: '商品未购买成功'
     },

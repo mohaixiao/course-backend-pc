@@ -28,6 +28,7 @@ app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
     /^\/api\/product\/v1/,  // 课程视频接口排除
     /^\/api\/teacher\/v1/,  // 讲师接口排除
     /^\/api\/order\/v1\/latest/,  // 课程购买动态接口排除
+    /^\/api\/comment\/v1\/page/,  //评论列表
   ]
 }))
 
@@ -58,6 +59,10 @@ app.use('/api/teacher/v1', teacherRouter);
 // 订单相关的接口
 const orderRouter = require('./router/order.js')
 app.use('/api/order/v1', orderRouter)
+
+// 评论相关的接口
+const commentRouter = require('./router/comment');
+app.use('/api/comment/v1', commentRouter);
 
 // 错误中间件
 app.use((err, req, res, next) => {

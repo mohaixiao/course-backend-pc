@@ -1,9 +1,13 @@
-class RandomTool {
-    // 随机生成四位数字
-    static randomCode() {
-        return Math.floor((Math.random() * (9999 - 1000))) + 1000;
-    }
+/**
+ * @param {*} randomAvatar 随机生成自定义用户头像
+ * @param {*} randomName 随机生成自定义名字
+ * @param {*} randomString 随机字符串
+ * @param {*} randomCode 随机生成四位数字
+ */
 
+const randomString = require('string-random')
+
+class RandomTool {
     static randomAvatar() {
         let imgList = [
             'https://xd-video-pc-img.oss-cn-beijing.aliyuncs.com/xdclass_pro/default/head_img/10.jpeg',
@@ -38,6 +42,15 @@ class RandomTool {
         let num = Math.floor(Math.random() * 10);
         return name[num];
     }
+
+    static randomString(num) {
+        return randomString(num)
+    }
+
+    static randomCode() {
+        return Math.floor(Math.random() * (9999 - 1000)) + 1000
+    }
 }
 
-module.exports = RandomTool;
+module.exports = RandomTool
+

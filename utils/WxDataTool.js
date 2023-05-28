@@ -4,13 +4,12 @@ class WxDataTool {
     // 以流的形式处理微信的参数
     static getXMLStr(req) {
         return new Promise((resolve, reject) => {
-            let data = '';
+            let data = ''
             req.on('data', (msg) => {
                 data += msg.toString()
             })
-
             req.on('end', () => {
-                resolve(data);
+                resolve(data)
             })
         })
     }
@@ -24,12 +23,12 @@ class WxDataTool {
                 } else {
                     resolve(result)
                 }
-            });
+            })
         })
     }
 
     // 将数据优化成普通对象
-    static getLastData(query) {
+    static getLastData = (query) => {
         let obj = {}
         if (query && typeof query === 'object') {
             for (let key in query) {

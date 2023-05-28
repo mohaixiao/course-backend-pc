@@ -13,7 +13,11 @@ const OrderController = {
     latest: async (req, res) => {
         let handleRes = await OrderService.latest(req)
         res.send(handleRes)
-    }
+    },
+    pay: async (req, res) => {
+        let handleRes = await OrderService.pay(req)
+        res.send(handleRes);
+    },
 }
 
 module.exports = OrderController

@@ -17,11 +17,14 @@
     "express": "4.18.2",
     "express-jwt": "7.7.5",
     "ioredis": "5.2.3",
+    "jsrsasign": "10.6.1",
     "mysql2": "2.3.3",
     "sequelize": "6.24.0",
     "sequelize-auto": "0.8.8",
     "sha1": "1.1.1",
+    "string-random": "0.1.3",
     "svg-captcha": "1.4.0",
+    "urllib": "3.5.1",
     "xml2js": "0.4.23"
   }
 }

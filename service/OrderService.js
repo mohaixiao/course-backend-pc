@@ -1,7 +1,9 @@
 const DB = require('../config/sequelize')
 const BackCode = require('../utils/BackCode')
 const CodeEnum = require('../utils/CodeEnum')
+const RandomTool = require('../utils/RandomTool')
 const SecretTool = require('../utils/SecretTool')
+const { payment } = require('../config/wechatPay')
 
 const OrderService = {
   query_pay: async (req) => {

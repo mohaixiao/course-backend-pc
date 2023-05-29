@@ -44,7 +44,8 @@ const OrderService = {
     if (type === 'PC') {
       let result = await payment.native({
         description: '小滴课堂-测试',
-        out_trade_no,
+        // out_trade_no,  // 正式
+        out_trade_no: '123jn12j3h191u23', // 测试
         amount: {
           // total: Number(productInfo.amount) * 100,  // 正式
           total: 1 // 测试

@@ -30,9 +30,22 @@ class WxPayment {
                     pathname: `/v3/certificates`,
                 }
             },
+            // 通过out_trade_no查询订单url配置
+            getTransactionsByOutTradeNo: ({ pathParams }) => {
+                return {
+                    url: `https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/${pathParams.out_trade_no}?mchid=${this.mchid}`,
+                    method: `GET`,
+                    pathname: `/v3/pay/transactions/out-trade-no/${pathParams.out_trade_no}?mchid=${this.mchid}`,
+                }
+            },
         }
         // 初始化平台证书
         this.decodeCertificates()
+    }
+
+    // 通过out_trade_no查询订单
+    async getTransactionsByOutTradeNo(params) {
+        return await this.wxSignRequest({ pathParams: params, type: 'getTransactionsByOutTradeNo' })
     }
 
     // 请求微信服务器签名封装

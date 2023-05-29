@@ -55,5 +55,31 @@ const OrderService = {
     }
 
   },
+  callback: async (req) => {
+    let timestamp = req.header('Wechatpay-Timestamp')
+    let nonce = req.header('Wechatpay-Nonce')
+    let serial = req.header('Wechatpay-Serial')
+    let signature = req.header('Wechatpay-Signature')
+    let body = req.body
+
+    // 1.校验收到的请求是否来自微信服务器和平台证书是否一致
+    let result = await payment.verifySign({
+      timestamp,
+      nonce,
+      serial,
+      signature,
+      body
+    })
+    if (!result) {
+      return
+    }
+
+    // 2.解密body中的数据，拿到用户订单信息
+    let bufferoOne = payment.decode(body.resource)
+    let json = JSON.parse(bufferoOne.toString('utf8'))
+    console.log(json)
+
+    return BackCode.buildSuccess()
+  },
 }
 module.exports = OrderService

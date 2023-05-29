@@ -1,6 +1,8 @@
 const urllib = require('urllib');
 const { KJUR, hextob64 } = require('jsrsasign')
 const RandomTool = require('./RandomTool')
+const crypto = require("crypto");
+const x509 = require('@peculiar/x509');
 
 class WxPayment {
     constructor({ appid, mchid, private_key, serial_no, apiv3_private_key, notify_url } = {}) {
@@ -20,7 +22,17 @@ class WxPayment {
                     pathname: '/v3/pay/transactions/native',
                 }
             },
+            // 获取平台证书url
+            getCertificates: () => {
+                return {
+                    url: `https://api.mch.weixin.qq.com/v3/certificates`,
+                    method: `GET`,
+                    pathname: `/v3/certificates`,
+                }
+            },
         }
+        // 初始化平台证书
+        this.decodeCertificates()
     }
 
     // 请求微信服务器签名封装
@@ -59,6 +71,10 @@ class WxPayment {
         return await this.wxSignRequest({ bodyParams, type: 'native' })
     }
 
+    // 获取平台证书
+    async getCertificates() {
+        return await this.wxSignRequest({ type: 'getCertificates' })
+    }
 
 
     /**
@@ -81,6 +97,78 @@ class WxPayment {
         const signData = signature.sign()
         // 将内容转成base64
         return hextob64(signData)
+    }
+
+    //验证签名 timestamp,nonce,serial,signature均在HTTP头中获取,body为请求参数
+    async verifySign({ timestamp, nonce, serial, body, signature }) {
+        // 拼接参数
+        let data = `${timestamp}\n${nonce}\n${typeof body == 'string' ? body : JSON.stringify(body)}\n`;
+        // 用crypto模块解密
+        let verify = crypto.createVerify('RSA-SHA256');
+        // 添加摘要内容
+        verify.update(Buffer.from(data));
+        // 从初始化的平台证书中获取公钥
+        for (let cert of this.certificates) {
+            if (cert.serial_no == serial) {
+                return verify.verify(cert.public_key, signature, 'base64');
+            } else {
+                throw new Error('平台证书序列号不相符')
+            }
+        }
+    }
+
+    //解密证书列表 解出CERTIFICATE以及public key
+    async decodeCertificates() {
+        let result = await this.getCertificates();
+        if (result.status != 200) {
+            throw new Error('获取证书列表失败')
+        }
+        let certificates = typeof result.data == 'string' ? JSON.parse(result.data).data : result.data.data
+        for (let cert of certificates) {
+            let output = this.decode(cert.encrypt_certificate)
+            cert.decrypt_certificate = output.toString()
+            let beginIndex = cert.decrypt_certificate.indexOf('-\n')
+            let endIndex = cert.decrypt_certificate.indexOf('\n-')
+            let str = cert.decrypt_certificate.substring(beginIndex + 2, endIndex)
+            // 生成X.509证书
+            let x509Certificate = new x509.X509Certificate(Buffer.from(str, 'base64'));
+            let public_key = Buffer.from(x509Certificate.publicKey.rawData).toString('base64')
+            // 平台证书公钥
+            cert.public_key = `-----BEGIN PUBLIC KEY-----\n` + public_key + `\n-----END PUBLIC KEY-----`
+        }
+        return this.certificates = certificates
+    }
+
+    //解密
+    decode(params) {
+        const AUTH_KEY_LENGTH = 16;
+        // ciphertext = 密文，associated_data = 填充内容， nonce = 位移
+        const { ciphertext, associated_data, nonce } = params;
+        // 密钥
+        const key_bytes = Buffer.from(this.apiv3_private_key, 'utf8');
+        // 位移
+        const nonce_bytes = Buffer.from(nonce, 'utf8');
+        // 填充内容
+        const associated_data_bytes = Buffer.from(associated_data, 'utf8');
+        // 密文Buffer
+        const ciphertext_bytes = Buffer.from(ciphertext, 'base64');
+        // 计算减去16位长度
+        const cipherdata_length = ciphertext_bytes.length - AUTH_KEY_LENGTH;
+        // upodata
+        const cipherdata_bytes = ciphertext_bytes.slice(0, cipherdata_length);
+        // tag
+        const auth_tag_bytes = ciphertext_bytes.slice(cipherdata_length, ciphertext_bytes.length);
+        const decipher = crypto.createDecipheriv(
+            'aes-256-gcm', key_bytes, nonce_bytes
+        );
+        decipher.setAuthTag(auth_tag_bytes);
+        decipher.setAAD(Buffer.from(associated_data_bytes));
+
+        const output = Buffer.concat([
+            decipher.update(cipherdata_bytes),
+            decipher.final(),
+        ]);
+        return output;
     }
 }
 

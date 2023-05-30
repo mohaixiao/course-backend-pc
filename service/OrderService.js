@@ -113,7 +113,7 @@ const OrderService = {
       // 4.更新redis课程热门排行榜数据
       let productItem = await DB.ProductOrder.findOne({ where: { out_trade_no }, raw: true })
       let memberInfo = {
-        id: productItem.id,
+        id: productItem.product_id,
         title: productItem.product_title,
         img: productItem.product_img,
       }

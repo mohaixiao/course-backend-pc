@@ -11,4 +11,10 @@ router.get('/latest', OrderController.latest)
 // 获取微信支付二维码
 router.post('/pay', OrderController.pay)
 
+// 微信支付回调
+router.post('/callback', OrderController.callback);
+
+// 轮询用户扫码与否
+router.get('/query_state', OrderController.query_state);
+
 module.exports = router

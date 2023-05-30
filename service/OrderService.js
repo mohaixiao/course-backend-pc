@@ -5,6 +5,8 @@ const RandomTool = require('../utils/RandomTool')
 const SecretTool = require('../utils/SecretTool')
 const GetUserInfoTool = require('../utils/GetUserInfoTool')
 const { payment } = require('../config/wechatPay')
+const dayjs = require('dayjs')
+const redisConfig = require('../config/redisConfig')
 
 const OrderService = {
   query_pay: async (req) => {
@@ -81,7 +83,6 @@ const OrderService = {
       return BackCode.buildSuccessAndData({ data: { code_url: JSON.parse(result.data).code_url, out_trade_no } })
     }
   },
-
   callback: async (req) => {
     let timestamp = req.header('Wechatpay-Timestamp')
     let nonce = req.header('Wechatpay-Nonce')
@@ -106,12 +107,27 @@ const OrderService = {
     let json = JSON.parse(bufferoOne.toString('utf8'))
     let { out_trade_no, trade_state } = json
     console.log(json)
-    // 3.根据微信服务器返回的订单信息更新数据库中改订单的支付状态
     if (trade_state === 'SUCCESS') {
+      // 3.根据微信服务器返回的订单信息更新数据库中改订单的支付状态
       await DB.ProductOrder.update({ order_state: 'PAY' }, { where: { out_trade_no } })
+      // 4.更新redis课程热门排行榜数据
+      let productItem = await DB.ProductOrder.findOne({ where: { out_trade_no }, raw: true })
+      let memberInfo = {
+        id: productItem.id,
+        title: productItem.product_title,
+        img: productItem.product_img,
+      }
+      let time = dayjs(Date.now()).format('YYYY-MM-DD')
+      await redisConfig.zincrby({ key: `${time}:rank:hot_product`, increment: 1, member: JSON.stringify(memberInfo) })
     }
-
     return BackCode.buildSuccess()
+  },
+  query_state: async (req) => {
+    let { out_trade_no } = req.query
+    let token = req.headers.authorization.split(' ').pop()
+    let userInfo = SecretTool.jwtVerify(token)
+    let order_state = (await DB.ProductOrder.findOne({ where: { out_trade_no, account_id: userInfo.id }, raw: true })).order_state
+    return BackCode.buildSuccessAndData({ data: { order_state } })
   },
 }
 module.exports = OrderService

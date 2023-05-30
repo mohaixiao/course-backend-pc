@@ -1,13 +1,10 @@
 const Redis = require('ioredis')
 
 const redis = new Redis({
-        port: 6379, // Redis port
-        host: '8.130.120.189',// Redis host
-        // username: "default", // needs Redis >= 6
-        password: 'xdclass.net',
-        // db: 0, // Defaults to 0
-    });
-
+    port: 6379,
+    host: '120.25.3.72',
+    password: 'xdclass.net'
+})
 
 const redisConfig = {
     // redis存数据
@@ -28,7 +25,12 @@ const redisConfig = {
     // redis判断数据是否存在
     exists: (key) => {
         return redis.exists(key)
-    }
+    },
+
+    // SortedSet以增量添加
+    zincrby: ({ key, increment, member }) => {
+        return redis.zincrby(key, increment, member)
+    },
 }
 
 module.exports = redisConfig

@@ -29,7 +29,6 @@ app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
     /^\/api\/teacher\/v1/,  // 讲师接口排除
     /^\/api\/order\/v1\/latest/,  // 课程购买动态接口排除
     /^\/api\/comment\/v1\/page/,  // 评论列表
-    /^\/api\/order\/v1\/pay/,  // 获取微信支付二维码排除
     /^\/api\/order\/v1\/callback/,  // 微信支付回调接口
   ]
 }))

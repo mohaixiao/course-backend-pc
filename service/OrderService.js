@@ -3,6 +3,7 @@ const BackCode = require('../utils/BackCode')
 const CodeEnum = require('../utils/CodeEnum')
 const RandomTool = require('../utils/RandomTool')
 const SecretTool = require('../utils/SecretTool')
+const GetUserInfoTool = require('../utils/GetUserInfoTool')
 const { payment } = require('../config/wechatPay')
 
 const OrderService = {
@@ -34,28 +35,53 @@ const OrderService = {
   pay: async (req) => {
     let { id, type } = req.body
 
+    let token = req.headers.authorization.split(' ').pop()
+
+    // 获取用户信息
+    let userInfo = SecretTool.jwtVerify(token)
+
+    // 用户的ip
+    let ip = GetUserInfoTool.getIp(req)
+
     // 生成32位字符串
     let out_trade_no = RandomTool.randomString(32)
 
     // 根据商品的ID查询商品价格
     let productInfo = await DB.Product.findOne({ where: { id }, raw: true })
 
+    // 拼装用户和商品信息插入数据库
+    let userPro = {
+      account_id: userInfo.id,
+      username: userInfo.username,
+      user_head_img: userInfo.head_img,
+      out_trade_no: out_trade_no,
+      total_amount: productInfo.amount,
+      pay_amount: productInfo.amount,
+      product_id: productInfo.id,
+      product_type: productInfo.product_type,
+      product_title: productInfo.title,
+      product_img: productInfo.cover_img,
+      order_state: 'NEW',
+      ip: ip
+    }
+
+    // 新订单信息插入数据库
+    await DB.ProductOrder.create(userPro)
+
     // 微信支付二维码
     if (type === 'PC') {
       let result = await payment.native({
         description: '小滴课堂-测试',
-        // out_trade_no,  // 正式
-        out_trade_no: '123jn12j3h191u23', // 测试
+        out_trade_no,  // 正式
         amount: {
-          // total: Number(productInfo.amount) * 100,  // 正式
-          total: 1 // 测试
+          total: Number(productInfo.amount) * 100,  // 正式
+          // total: 1 // 测试
         }
       })
-      console.log(result)
       return BackCode.buildSuccessAndData({ data: { code_url: JSON.parse(result.data).code_url, out_trade_no } })
     }
-
   },
+
   callback: async (req) => {
     let timestamp = req.header('Wechatpay-Timestamp')
     let nonce = req.header('Wechatpay-Nonce')

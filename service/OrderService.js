@@ -74,8 +74,8 @@ const OrderService = {
         description: '小滴课堂-测试',
         out_trade_no,  // 正式
         amount: {
-          total: Number(productInfo.amount) * 100,  // 正式
-          // total: 1 // 测试
+          // total: Number(productInfo.amount) * 100,  // 正式
+          total: 1 // 测试
         }
       })
       return BackCode.buildSuccessAndData({ data: { code_url: JSON.parse(result.data).code_url, out_trade_no } })
@@ -104,7 +104,12 @@ const OrderService = {
     // 2.解密body中的数据，拿到用户订单信息
     let bufferoOne = payment.decode(body.resource)
     let json = JSON.parse(bufferoOne.toString('utf8'))
+    let { out_trade_no, trade_state } = json
     console.log(json)
+    // 3.根据微信服务器返回的订单信息更新数据库中改订单的支付状态
+    if (trade_state === 'SUCCESS') {
+      await DB.ProductOrder.update({ order_state: 'PAY' }, { where: { out_trade_no } })
+    }
 
     return BackCode.buildSuccess()
   },

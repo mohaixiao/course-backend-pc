@@ -31,6 +31,11 @@ const redisConfig = {
     zincrby: ({ key, increment, member }) => {
         return redis.zincrby(key, increment, member)
     },
+
+    // SortedSet按条件降序查询
+    zrevrange: ({ key, start, stop }) => {
+        return redis.zrevrange(key, start, stop)
+    },
 }
 
 module.exports = redisConfig

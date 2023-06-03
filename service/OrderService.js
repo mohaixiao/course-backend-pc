@@ -7,6 +7,8 @@ const GetUserInfoTool = require('../utils/GetUserInfoTool')
 const { payment } = require('../config/wechatPay')
 const dayjs = require('dayjs')
 const redisConfig = require('../config/redisConfig')
+const RabbitMQTool = require('../config/rabbitMQ')
+const rabbitMQTool = new RabbitMQTool()
 
 const OrderService = {
   query_pay: async (req) => {
@@ -66,6 +68,10 @@ const OrderService = {
       order_state: 'NEW',
       ip: ip
     }
+
+    // 订单推送MQ普通队列
+    let userMQ = { account_id: userInfo.id, out_trade_no: out_trade_no }
+    rabbitMQTool.sender('order.queue', JSON.stringify(userMQ))
 
     // 新订单信息插入数据库
     await DB.ProductOrder.create(userPro)

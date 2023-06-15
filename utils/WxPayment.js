@@ -43,7 +43,7 @@ class WxPayment {
         this.decodeCertificates()
     }
 
-    // 通过商户订单号out_trade_no查询订单
+    // 通过out_trade_no查询订单
     async getTransactionsByOutTradeNo(params) {
         return await this.wxSignRequest({ pathParams: params, type: 'getTransactionsByOutTradeNo' })
     }

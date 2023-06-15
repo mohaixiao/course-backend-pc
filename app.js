@@ -7,6 +7,10 @@ const { jwtSecretKey } = require('./config/jwtSecretKey')
 const DB = require('./config/sequelize')
 const BackCode = require('./utils/BackCode')
 const CodeEnum = require('./utils/CodeEnum')
+const ScheduleTool = require('./utils/ScheduleTool')
+const dayjs = require('dayjs')
+const RabbitMQTool = require('./config/rabbitMQ')
+const { payment } = require('./config/wechatPay')
 
 app.use(cors())
 
@@ -30,8 +34,16 @@ app.use(jwt({ secret: jwtSecretKey, algorithms: ['HS256'] }).unless({
     /^\/api\/order\/v1\/latest/,  // 课程购买动态接口排除
     /^\/api\/comment\/v1\/page/,  // 评论列表
     /^\/api\/order\/v1\/callback/,  // 微信支付回调接口
+    /^\/api\/rank\/v1/,  //排行榜
   ]
 }))
+// 视频播放的接口
+const getPlayUrlRouter = require('./router/getPlayUrl');
+app.use('/api/getPlayUrl/v1', getPlayUrlRouter);
+
+// 榜单相关的接口
+const rankRouter = require('./router/rank');
+app.use('/api/rank/v1', rankRouter);
 
 // 通知相关的接口
 const notifyRouter = require('./router/notify.js')
@@ -64,6 +76,34 @@ app.use('/api/order/v1', orderRouter)
 // 评论相关的接口
 const commentRouter = require('./router/comment');
 app.use('/api/comment/v1', commentRouter);
+
+
+// 每天凌晨0点清除昨天redis中商品热卖排行榜的数据
+ScheduleTool.dayJob(() => {
+  let yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+  redisConfig.del(`${yesterday}:rank:hot_product`)
+})
+
+// 订单超时关单，监听MQ死信队列
+const rabbitMQ = new RabbitMQTool()
+const closerOrder = async (msg) => {
+  let out_trade_no = JSON.parse(msg.content).out_trade_no
+  // 1.查询数据库订单是否支付
+  let orderItem = await DB.ProductOrder.findOne({ where: { out_trade_no }, raw: true })
+  if (orderItem.order_state === 'NEW') {
+    // 2.去微信支付平台二次确认
+    let wechatOrder = await payment.getTransactionsByOutTradeNo({ out_trade_no })
+    if (JSON.parse(wechatOrder.data).trade_state === 'NOTPAY') {
+      // 3.如果未支付，order_state改为CANCEL
+      await DB.ProductOrder.update({ order_state: 'CANCEL' }, { where: { out_trade_no } })
+    } else if (JSON.parse(wechatOrder.data).trade_state === 'SUCCESS') {
+      // 4.如果已支付，order_state改为PAY
+      await DB.ProductOrder.update({ order_state: 'PAY' }, { where: { out_trade_no } })
+    }
+  }
+}
+rabbitMQ.listener('dead.order.queue', closerOrder)
+
 
 // 错误中间件
 app.use((err, req, res, next) => {

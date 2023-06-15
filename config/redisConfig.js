@@ -2,7 +2,7 @@ const Redis = require('ioredis')
 
 const redis = new Redis({
     port: 6379,
-    host: '120.25.3.72',
+    host: '8.130.120.189',
     password: 'xdclass.net'
 })
 

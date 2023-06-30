@@ -112,10 +112,11 @@ const ProductService = {
     if (!id) return BackCode.buildError({ msg: '缺少必要参数' })
     let chapterList = await DB.Chapter.findAll({ where: { product_id: id }, order: [['ordered']], raw: true })
     let episodeList = await DB.Episode.findAll({ where: { product_id: id }, order: [['ordered']], raw: true })
+
     // 将课程的集生层对象数组插入到章数据元素中
-    chapterList.map((item) => {
+    chapterList.map((item, index) => {
       item['episodeList'] = []
-      episodeList.map((subItem) => {
+      episodeList.map((subItem, index) => {
         if (subItem.chapter_id === item.id) {
           return item['episodeList'].push(subItem)
         }

@@ -79,10 +79,34 @@ app.use('/api/comment/v1', commentRouter);
 
 
 // 每天凌晨0点清除昨天redis中商品热卖排行榜的数据
-ScheduleTool.dayJob(() => {
+ScheduleTool.dayJob(0, () => {
   let yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
   redisConfig.del(`${yesterday}:rank:hot_product`)
 })
+
+// 每天凌晨2点更新统计昨天用户观看视频时长
+ScheduleTool.dayJob(2, async () => {
+  // 1.计算昨天的日期
+  let yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+  // 2.统计昨天有观看视频的用户，并且去重
+  let onlyRecord = await DB.DurationRecord.findAll({
+    attributes: [[DB.sequelize.fn('DISTINCT', DB.sequelize.col('account_id')), 'accountId']],
+    where: { gmt_modified: { [Op.gt]: yesterday } },
+    raw: true
+  })
+  // 3.根据用户id计算每个用户的总观看时长
+  let itemRecord = onlyRecord.map(async (item) => {
+    item['duration'] = await DB.DurationRecord.sum('duration', { where: { account_id: item.accountId } })
+    return item
+  })
+  // 4.转成普通的数组
+  let itemRecordList = await Promise.all(itemRecord)
+  // 5.遍历每个用户更新总观看时长
+  itemRecordList.map(async (item) => {
+    await DB.Account.update({ learn_time: item.duration }, { where: { id: item.accountId } })
+  })
+});
+
 
 // 订单超时关单，监听MQ死信队列
 const rabbitMQ = new RabbitMQTool()

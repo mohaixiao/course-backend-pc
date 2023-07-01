@@ -8,7 +8,11 @@ const RankController = {
   hot_product: async (req, res) => {
     let handleRes = await RankService.hot_product(req)
     res.send(handleRes)
-  }
+  },
+  duration: async (req, res) => {
+    let handleRes = await RankService.duration(req)
+    res.send(handleRes)
+  },
 }
 
 module.exports = RankController

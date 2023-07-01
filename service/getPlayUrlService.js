@@ -30,9 +30,14 @@ const getPlayUrlService = {
         }
 
         // 传入视频媒资id获取播放地址
-        let url = await huaWeiYun.getVideoUrl(episode.hwyun_id)
-
-        if (url.length < 0) {
+        let url
+        try {
+            url = await huaWeiYun.getVideoUrl(episode.hwyun_id)
+            if (url.length < 0) {
+                return BackCode.buildResult(CodeEnum.COURSE_VIDEO_NO_EXIST)
+            }
+        } catch (error) {
+            console.log(error);
             return BackCode.buildResult(CodeEnum.COURSE_VIDEO_NO_EXIST)
         }
 

@@ -16,4 +16,7 @@ router.post('/login', UserController.login)
 // 用户信息接口
 router.get('/detail', UserController.detail)
 
+// 上报学习时长
+router.post('/duration_record', UserController.duration_record)
+
 module.exports = router;

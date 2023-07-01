@@ -24,7 +24,10 @@ const UserController = {
         let handleRes = await UserService.detail(req)
         res.send(handleRes)
     },
-    
+    duration_record: async (req, res) => {
+        let handleRes = await UserService.duration_record(req)
+        res.send(handleRes)
+    },
 }
 
 

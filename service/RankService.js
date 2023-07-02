@@ -1,7 +1,10 @@
 const dayjs = require('dayjs')
-const { zrevrange } = require('../config/redisConfig')
+const { zrevrange, exists, set, get } = require('../config/redisConfig')
 const rankProduct = require('../mock/rankProduct.json')
 const BackCode = require('../utils/BackCode')
+const DB = require('../config/sequelize')
+const rankDuration = require('../mock/rankDuration.json')
+const { Op, QueryTypes } = require('sequelize')
 
 const RankService = {
     hot_product: async () => {

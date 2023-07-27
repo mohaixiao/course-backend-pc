@@ -28,6 +28,18 @@ const UserController = {
         let handleRes = await UserService.duration_record(req)
         res.send(handleRes)
     },
+    play_record: async (req, res) => {
+        let handleRes = await UserService.play_record(req)
+        res.send(handleRes)
+    },
+    update_img: async (req, res) => {
+        let handleRes = await UserService.update_img(req)
+        res.send(handleRes)
+    },
+    update: async (req, res) => {
+        let handleRes = await UserService.update(req)
+        res.send(handleRes)
+    },
 }
 
 

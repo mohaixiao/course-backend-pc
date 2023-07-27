@@ -196,6 +196,11 @@ const CodeEnum = {
         code: 700101,
         msg: '用户头像上传失败'
     },
+
+    LEARN_TIME_SMALL: {
+        code: 400001,
+        msg: '最新学习时长较之前小，不做更新'
+    },
 }
 
 module.exports = CodeEnum

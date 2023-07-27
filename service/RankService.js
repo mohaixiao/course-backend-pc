@@ -8,12 +8,16 @@ const { Op, QueryTypes } = require('sequelize')
 
 const RankService = {
     hot_product: async () => {
-        let time = dayjs().format('YYYY-MM-DD')
-        // 获取redis当中的课程销量列表
-        let result = await zrevrange({ key: `${time}:rank:hot_product`, start: 0, stop: 14 })
-        // 兜底数据
-        let list = result.map((item) => JSON.parse(item)).concat(rankProduct.list).slice(0, 15)
-        return BackCode.buildSuccessAndData({ data: list })
+        try {
+            let time = dayjs().format('YYYY-MM-DD')
+            // 获取redis当中的课程销量列表
+            let result = await zrevrange({ key: `${time}:rank:hot_product`, start: 0, stop: 14 })
+            // 兜底数据
+            let list = result.map((item) => JSON.parse(item)).concat(rankProduct.list).slice(0, 15)
+            return BackCode.buildSuccessAndData({ data: list })
+        } catch (error) {
+            return BackCode.buildError({ msg: "查询失败" })
+        }
     },
     duration: async () => {
         // 1.查询redis中是否有近七天的排行榜
